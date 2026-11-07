@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WinGo 1M Live Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #0d1117;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .card {
+            background: #161b22;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            text-align: center;
+            width: 340px;
+            border: 1px solid #30363d;
+        }
+        h2 { margin-top: 0; color: #58a6ff; font-size: 20px; }
+        .period-box {
+            font-size: 18px;
+            font-weight: bold;
+            padding: 10px;
+            background: #21262d;
+            border-radius: 8px;
+            margin: 15px 0;
+            color: #f0f6fc;
+        }
+        .prediction {
+            font-size: 22px;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+        .BIG { color: #f85149; }
+        .SMALL { color: #56d364; }
+        .meta {
+            font-size: 14px;
+            color: #8b949e;
+            margin: 8px 0;
+        }
+        .digits {
+            display: inline-block;
+            background: #30363d;
+            padding: 4px 8px;
+            border-radius: 4px;
+            color: #e3b341;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>WinGo 1M Tracker</h2>
+        <div class="period-box" id="period">Loading...</div>
+        <div class="prediction" id="outcome">--</div>
+        <div class="meta">Color: <span id="color" style="font-weight:bold;">--</span></div>
+        <div class="meta">Expected Digits: <span class="digits" id="digits">--</span></div>
+    </div>
+
+    <script>
+        async function updateData() {
+            try {
+                const res = await fetch('/api/predict');
+                const data = await res.json();
+
+                if (!data.error) {
+                    document.getElementById('period').innerText = "Period: " + data.current_period;
+                    const outcomeElem = document.getElementById('outcome');
+                    outcomeElem.innerText = data.big_small;
+                    outcomeElem.className = "prediction " + data.big_small;
+
+                    document.getElementById('color').innerText = data.color;
+                    document.getElementById('digits').innerText = data.expected_digits.join(', ');
+                }
+            } catch (err) {
+                console.error("Fetch error:", err);
+            }
+        }
+
+        // Har 5 second me auto update
+        updateData();
+        setInterval(updateData, 5000);
+    </script>
+</body>
+</html>
